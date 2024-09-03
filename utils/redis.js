@@ -1,8 +1,8 @@
-const redis = require('redis');
+import { createClient } from 'redis';
 
 class RedisClient {
 	constructor() {
-		this.client = redis.createClient();
+		this.client = createClient();
 		this.connected = true;
 		this.client.on('error', (err) => {
 			console.log(err);
@@ -31,4 +31,5 @@ class RedisClient {
 	}
 }
 
-module.export redisClient = new RedisClient();
+const redisClient = new RedisClient();
+export default redisClient;
