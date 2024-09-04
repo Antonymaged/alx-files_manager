@@ -1,7 +1,7 @@
 import express from 'express';
 import AppController from '../controllers/AppController.js';
 import UsersController from '../controllers/UsersController.js';
-import { getUserFromXToken, getUserFromAuthorization } from '../utils/auth.js';
+import { basicAuthenticate, xTokenAuthenticate } from '../middlewares/auth.js';
 
 const router = express.Router();
 
