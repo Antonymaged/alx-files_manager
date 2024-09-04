@@ -4,13 +4,19 @@ import { promisify } from 'util';
 import Queue from 'bull/lib/queue';
 import imgThumbnail from 'image-thumbnail';
 import mongoDBCore from 'mongodb/lib/core';
-import dbClient from './utils/db.js';
-import Mailer from './utils/mailer.js';
+import dbClient from './utils/db';
+import Mailer from './utils/mailer';
 
 const writeFileAsync = promisify(writeFile);
 const fileQueue = new Queue('thumbnail generation');
 const userQueue = new Queue('email sending');
 
+/**
+ * Generates the thumbnail of an image with a given width size.
+ * @param {String} filePath The location of the original file.
+ * @param {number} size The width of the thumbnail.
+ * @returns {Promise<void>}
+ */
 const generateThumbnail = async (filePath, size) => {
   const buffer = await imgThumbnail(filePath, { width: size });
   console.log(`Generating file: ${filePath}, size: ${size}`);

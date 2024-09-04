@@ -2,19 +2,18 @@
 /* eslint-disable no-unused-vars */
 import { tmpdir } from 'os';
 import { promisify } from 'util';
-import Queue from 'bull';
+import Queue from 'bull/lib/queue';
 import { v4 as uuidv4 } from 'uuid';
 import {
   mkdir, writeFile, stat, existsSync, realpath,
 } from 'fs';
 import { join as joinPath } from 'path';
-import express from 'express';
+import { Request, Response } from 'express';
 import { contentType } from 'mime-types';
-import mongoDBCore from 'mongodb-core';
-import dbClient from '../utils/db.js';
-import { getUserFromXToken } from '../utils/auth.js';
+import mongoDBCore from 'mongodb/lib/core';
+import dbClient from '../utils/db';
+import { getUserFromXToken } from '../utils/auth';
 
-const { Request, Response } = express;
 const VALID_FILE_TYPES = {
   folder: 'folder',
   file: 'file',
@@ -53,6 +52,11 @@ const isValidId = (id) => {
 };
 
 export default class FilesController {
+  /**
+   * Uploads a file.
+   * @param {Request} req The Express request object.
+   * @param {Response} res The Express response object.
+   */
   static async postUpload(req, res) {
     const { user } = req;
     const name = req.body ? req.body.name : null;
@@ -92,6 +96,8 @@ export default class FilesController {
     const baseDir = `${process.env.FOLDER_PATH || ''}`.trim().length > 0
       ? process.env.FOLDER_PATH.trim()
       : joinPath(tmpdir(), DEFAULT_ROOT_FOLDER);
+    // default baseDir == '/tmp/files_manager'
+    // or (on Windows) '%USERPROFILE%/AppData/Local/Temp/files_manager';
     const newFile = {
       userId: new mongoDBCore.BSON.ObjectId(userId),
       name,
@@ -110,6 +116,7 @@ export default class FilesController {
     const insertionInfo = await (await dbClient.filesCollection())
       .insertOne(newFile);
     const fileId = insertionInfo.insertedId.toString();
+    // start thumbnail generation worker
     if (type === VALID_FILE_TYPES.image) {
       const jobName = `Image thumbnail [${userId}-${fileId}]`;
       fileQueue.add({ userId, fileId, name: jobName });
@@ -152,6 +159,11 @@ export default class FilesController {
     });
   }
 
+  /**
+   * Retrieves files associated with a specific user.
+   * @param {Request} req The Express request object.
+   * @param {Response} res The Express response object.
+   */
   static async getIndex(req, res) {
     const { user } = req;
     const parentId = req.query.parentId || ROOT_FOLDER_ID.toString();
@@ -246,6 +258,11 @@ export default class FilesController {
     });
   }
 
+  /**
+   * Retrieves the content of a file.
+   * @param {Request} req The Express request object.
+   * @param {Response} res The Express response object.
+   */
   static async getFile(req, res) {
     const user = await getUserFromXToken(req);
     const { id } = req.params;
@@ -284,4 +301,3 @@ export default class FilesController {
     res.status(200).sendFile(absoluteFilePath);
   }
 }
-
