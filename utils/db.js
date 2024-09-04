@@ -1,5 +1,4 @@
 import mongodb from 'mongodb';
-// eslint-disable-next-line no-unused-vars
 
 const { MongoClient } = mongodb;
 
