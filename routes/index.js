@@ -2,6 +2,7 @@ import express from 'express';
 import AppController from '../controllers/AppController.js';
 import UsersController from '../controllers/UsersController.js';
 import AuthController from '../controllers/AuthController.js';
+import FilesController from '../controllers/FilesController.js'
 import { basicAuthenticate, xTokenAuthenticate } from '../middlewares/auth.js';
 
 const router = express.Router();
@@ -12,5 +13,13 @@ router.post('/users', UsersController.postNew);
 router.get('/users/me', xTokenAuthenticate, UsersController.getMe);
 router.get('/connect', basicAuthenticate, AuthController.getConnect);
 router.get('/disconnect', xTokenAuthenticate, AuthController.getDisconnect);
+router.post('/files', xTokenAuthenticate, FilesController.postUpload);
+router.get('/files/:id', xTokenAuthenticate, FilesController.getShow);
+router.get('/files', xTokenAuthenticate, FilesController.getIndex);
+router.put('/files/:id/publish', xTokenAuthenticate, FilesController.putPublish);
+router.put('/files/:id/unpublish', xTokenAuthenticate, FilesController.putUnpublish);
+router.get('/files/:id/data', FilesController.getFile);
+
+router.all('*', (req,res,next) => {})
 
 export default router;
