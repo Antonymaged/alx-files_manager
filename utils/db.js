@@ -1,21 +1,23 @@
 import mongodb from 'mongodb';
-
-const { MongoClient } = mongodb;
+// eslint-disable-next-line no-unused-vars
+import Collection from 'mongodb/lib/collection';
+import envLoader from './env_loader';
 
 class DBClient {
 	constructor() {
-		this.host = process.env.DB_HOST || 'localhost';
-		this.port = process.env.DB_PORT || 27017;
-		this.database = process.env.DB_DATABASE || 'files_manager';
-		this.uri = `mongodb://${this.host}:${this.port}/${this.database}`;
-		this.client = new MongoClient(this.uri, { useUnifiedTopology: true });
-		this.client.connect
+		envLoader();
+		const host = process.env.DB_HOST || 'localhost';
+		const port = process.env.DB_PORT || 27017;
+		const database = process.env.DB_DATABASE || 'files_manager';
+		const url = `mongodb://${host}:${port}/${database}`;
+		this.client = new mongodb.MongoClient(url, { useUnifiedTopology: true });
+		this.client.connect();
 	}
 
 	isAlive() {
 		return this.client.isConnected();
 	}
-	
+
 	async nbUsers() {
 		return this.client.db().collection('users').countDocuments();
 	}
@@ -23,7 +25,6 @@ class DBClient {
 	async nbFiles() {
 		return this.client.db().collection('files').countDocuments();
 	}
-
 }
 
 export const dbClient = new DBClient();
