@@ -1,12 +1,12 @@
 /* eslint-disable import/no-named-as-default */
 /* eslint-disable no-unused-vars */
 import sha1 from 'sha1';
-import { Request } from 'express';
-import mongoDBCore from 'mongodb/lib/core';
-import dbClient from './db';
-import redisClient from './redis';
+import express from 'express';
+import mongoDBCore from 'mongodb-core';
+import dbClient from './db.js';
+import redisClient from './redis.js';
 
- */
+const { Request } = express;
 export const getUserFromAuthorization = async (req) => {
   const authorization = req.headers.authorization || null;
 
